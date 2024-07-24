@@ -15,10 +15,7 @@ const user = new mongoose.Schema({
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-  },
+
   address: {
     type: String,
     required: true,
