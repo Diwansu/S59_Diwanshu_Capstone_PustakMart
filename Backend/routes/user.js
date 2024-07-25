@@ -99,4 +99,17 @@ router.get("/get-user-information",authenticateToken, async(req,res)=>{
     }
 })
 
+router.put("/update-address", authenticateToken,async(req,res)=>{
+    try{
+        const{id} = req.headers;
+        const {address} = req.body ;
+        await User.findByIdAndUpdate(id,{address: address});
+        return res.status(200).json({message : "Address Updated Successfully."});
+
+    } catch(error){
+        console.error('Error details:', error);
+        res.status(500).json({message: "Internal Server Error"});
+    }
+})
+
 module.exports = router ;
