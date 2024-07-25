@@ -64,10 +64,10 @@ router.post("/sign-in", async (req,res)=> {
     }
     await bcrypt.compare(password,existingUser.password,(err,data)=>{
         if(data) {
-            const authClaims = [
-                {name:existingUser.username},
-                {role : existingUser.role},
-            ];
+            const authClaims = {
+                name:existingUser.username,
+                role : existingUser.role}
+            ;
             const token = jwt.sign({ authClaims }, process.env.SECRET_KEY, {
               expiresIn: "30d",
             });
