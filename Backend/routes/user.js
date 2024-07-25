@@ -1,6 +1,8 @@
 const router = require("express").Router();
+require("dotenv").config();
 const User = require("./models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 async function checkIfExists(username,email){
     const existingUser = await User.findOne({
@@ -62,7 +64,19 @@ router.post("/sign-in", async (req,res)=> {
     }
     await bcrypt.compare(password,existingUser.password,(err,data)=>{
         if(data) {
-            res.status(200).json({message: "SignIn Success."});
+            const authClaims = [
+                {name:existingUser.username},
+                {role : existingUser.role},
+            ];
+            const token = jwt.sign({authClaims},process.env.SECRET_KEY,{
+                expiresIn : "30d",
+            });
+
+            res.status(200).json({
+                id: existingUser._id,
+                role : existingUser.role,
+                token : token ,
+            });
         } else {
             res.status(400).json({message:"Invalid credentials" });
         }
