@@ -107,7 +107,14 @@ router.put("/update-address", authenticateToken,async(req,res)=>{
         return res.status(200).json({message : "Address Updated Successfully."});
 
     } catch(error){
-        console.error('Error details:', error);
+        console.error("Error type:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        console.error("Additional context:", {
+          route: "/update-address", 
+          userId: req.user ? req.user.id : "unknown",
+        });
+
         res.status(500).json({message: "Internal Server Error"});
     }
 })
