@@ -94,6 +94,7 @@ router.get("/get-user-information",authenticateToken, async(req,res)=>{
       const data = await User.findById(id).select("-password");
       return res.status(200).json(data);
     } catch(error){
+        console.error('Error details:', error);
         res.status(500).json({message: "Internal Server Error"});
     }
 })
