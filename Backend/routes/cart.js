@@ -14,7 +14,7 @@ router.put("/add-to-cart" , authenticateToken , async(req,res)=> {
         return res.status(200).json({message : "Book is added to Cart."});
     } catch(error){
         console.log(error);
-        res.status(500).json({message : "Book has been added to Cart."})
+        res.status(500).json({message : "An error occured."})
     }
 })
 
