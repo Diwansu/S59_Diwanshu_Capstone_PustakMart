@@ -2,15 +2,17 @@ const router = require("express").Router();
 const User = require("../models/user")
 const {authenticateToken} = require("./userAuth");
 
-router.put("/add-book-to-favourite" , authenticateToken , async(req,res)=> {
+router.put("/add-book-to-favourite/:bookId" , authenticateToken , async(req,res)=> {
     try{
-        const {bookid, id} = req.headers;
+        const {bookId} = req.params;
+        const id = req.user.id ;
+
         const userData = await User.findById(id);
-        const isBookFavourite = userData.favourites.includes(bookid);
+        const isBookFavourite = userData.favourites.includes(bookId);
         if(isBookFavourite){
             return res.status(200).json({message : "Book is already in favourites."});
         }
-        await User.findByIdAndUpdate(id , {$push : {favourites : bookid}});
+        await User.findByIdAndUpdate(id , {$push : {favourites : bookId}});
         return res.status(200).json({message : "Book added to favourites."});
 
     }catch (error){
@@ -18,9 +20,10 @@ router.put("/add-book-to-favourite" , authenticateToken , async(req,res)=> {
     }
 })
 
-router.put("/remove-book-from-favourite" , authenticateToken , async(req,res)=> {
+router.put("/remove-book-from-favourite/:bookId" , authenticateToken , async(req,res)=> {
     try{
-        const {bookid, id} = req.headers;
+        const {bookId} = req.params;
+        const id = req.user.id ;
        
             await User.findByIdAndUpdate(id , {$pull : {favourites : bookid}});
         
@@ -32,7 +35,8 @@ router.put("/remove-book-from-favourite" , authenticateToken , async(req,res)=> 
 
 router.get("/get-favourite-books", authenticateToken, async(req,res) => {
     try{
-      const {id} = req.headers;
+      const id = req.user.id;
+      
       const userData = await User.findById(id).populate("favourites");
       const favouriteBooks = userData.favourites ;
       return res.json({
