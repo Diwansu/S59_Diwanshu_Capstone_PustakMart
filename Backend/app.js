@@ -1,4 +1,5 @@
 const express = require("express")
+const cors = require('cors');
 const app = express();
 
 require("dotenv").config();
@@ -7,16 +8,16 @@ const user = require("./routes/userRoutes");
 const Books = require("./routes/book");
 const Favourite = require("./routes/favourite");
 const Cart = require("./routes/cart");
+const orderRoutes = require("./routes/order");
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/users", user) ;
 app.use("/books" , Books);
 app.use("/favorites" , Favourite);
 app.use("/carts" , Cart)
-
-
-
+app.use("/orders", orderRoutes);
 
 const port = process.env.PORT || 8080 ;
 

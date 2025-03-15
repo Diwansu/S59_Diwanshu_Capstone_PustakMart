@@ -72,6 +72,7 @@ router.post("/sign-in", async (req, res) => {
     await bcrypt.compare(password, existingUser.password, (err, data) => {
       if (data) {
         const authClaims = {
+          id: existingUser._id, 
           name: existingUser.username,
           role: existingUser.role,
         };
@@ -80,10 +81,12 @@ router.post("/sign-in", async (req, res) => {
         });
 
         res.status(200).json({
+          message : "Invalid credentials",
           id: existingUser._id,
           role: existingUser.role,
           token: token,
         });
+        
       } else {
         res.status(400).json({ message: "Invalid credentials" });
       }
@@ -95,7 +98,8 @@ router.post("/sign-in", async (req, res) => {
 
 router.get("/get-user-information", authenticateToken, async (req, res) => {
   try {
-    const  id  = req.user.id;
+    const id = req.user.authClaims.id;
+    console.log(id);
     const data = await User.findById(id).select("-password");
     return res.status(200).json(data);
   } catch (error) {
@@ -106,7 +110,8 @@ router.get("/get-user-information", authenticateToken, async (req, res) => {
 
 router.put("/update-address", authenticateToken, async (req, res) => {
   try {
-    const  id  = req.user.id;
+    const id = req.user.authClaims.id;
+
     const { address } = req.body;
     await User.findByIdAndUpdate(id, { address: address });
     return res.status(200).json({ message: "Address Updated Successfully." });

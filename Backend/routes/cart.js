@@ -4,8 +4,8 @@ const { authenticateToken } = require("./userAuth");
 
 router.put("/add-to-cart", authenticateToken, async (req, res) => {
   try {
-    const { bookId} = req.body;
-     const id = req.user.id
+    const { bookId } = req.body;
+    const id = req.user.authClaims.id;
 
     const userData = await User.findById(id);
 
@@ -35,7 +35,7 @@ router.put("/add-to-cart", authenticateToken, async (req, res) => {
 router.put("/remove-from-cart/:bookid", authenticateToken, async (req, res) => {
   try {
     const { bookid } = req.params;
-    const  id  = req.user.id;
+    const id = req.user.authClaims.id;
 
     await User.findByIdAndUpdate(id, {
       $pull: { cart: bookid },
@@ -51,10 +51,10 @@ router.put("/remove-from-cart/:bookid", authenticateToken, async (req, res) => {
   }
 });
 
-router.get("get-user-cart", authenticateToken, async (req, res) => {
+router.get("/get-user-cart", authenticateToken, async (req, res) => {
   try {
-    const  id  = req.user.id;
-    
+    const id = req.user.authClaims.id;
+
     const userData = await User.findById(id).populate("cart");
     const cart = userData.cart.reverse();
 

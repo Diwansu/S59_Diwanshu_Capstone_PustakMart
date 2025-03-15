@@ -5,8 +5,14 @@ const Book = require("../models/book");
 const jwt = require("jsonwebtoken");
 const { authenticateToken } = require("./userAuth");
 
+// Add book - Admin only
 router.post("/add-book", authenticateToken, async (req, res) => {
   try {
+    // Check if user is admin
+    if (req.user.authClaims.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
     const book = new Book({
       url: req.body.url,
       title: req.body.title,
@@ -28,13 +34,17 @@ router.post("/add-book", authenticateToken, async (req, res) => {
   }
 });
 
+// Update book - Admin only
 router.put("/update-book/:bookId", authenticateToken, async (req, res) => {
   try {
-    const bookId = req.params;
+    // Check if user is admin
+    if (req.user.authClaims.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const { bookId } = req.params;
     if (!bookId) {
-      return res
-        .status(400)
-        .json({ message: "Book ID is required in headers." });
+      return res.status(400).json({ message: "Book ID is required." });
     }
 
     const bookExists = await Book.findById(bookId);
@@ -65,14 +75,18 @@ router.put("/update-book/:bookId", authenticateToken, async (req, res) => {
   }
 });
 
+// Delete book - Admin only
 router.delete("/delete-book/:bookId", authenticateToken, async (req, res) => {
   try {
-    const bookId = req.params;
+    // Check if user is admin
+    if (req.user.authClaims.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const { bookId } = req.params;
 
     if (!bookId) {
-      return res
-        .status(400)
-        .json({ message: "Book ID is required in headers." });
+      return res.status(400).json({ message: "Book ID is required." });
     }
     const bookExists = await Book.findById(bookId);
 
@@ -87,12 +101,11 @@ router.delete("/delete-book/:bookId", authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ message: "An error occured while deleting." });
+    return res.status(500).json({ message: "An error occurred while deleting." });
   }
 });
 
+// Public routes - no authentication needed
 router.get("/get-all-books", async (req, res) => {
   try {
     const books = await Book.find().sort({ createdAt: -1 });
@@ -102,7 +115,7 @@ router.get("/get-all-books", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "An error occured" });
+    return res.status(500).json({ message: "An error occurred" });
   }
 });
 
@@ -115,22 +128,26 @@ router.get("/get-recent-books", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "An error occured." });
+    return res.status(500).json({ message: "An error occurred." });
   }
 });
 
 router.get("/get-book-by-id/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const book = await Book.findById(id);
+    
+    if (!book) {
+      return res.status(404).json({ message: "Book not found." });
+    }
+
     return res.json({
       status: "Success",
       data: book,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "An error occured." });
+    return res.status(500).json({ message: "An error occurred." });
   }
 });
 
